@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChecklistRoundedIcon from '@mui/icons-material/ChecklistRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
-import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
+import StickyNote2RoundedIcon from '@mui/icons-material/StickyNote2Rounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { useUIStore } from '@/stores/uiStore';
 import * as styles from './BottomTabBar.styles';
@@ -12,7 +12,7 @@ const TABS = [
   { to: '/', label: 'Home', icon: HomeRoundedIcon, end: true },
   { to: '/tasks', label: 'Tasks', icon: ChecklistRoundedIcon },
   { to: '/calendar', label: 'Calendar', icon: CalendarMonthRoundedIcon },
-  { to: '/analytics', label: 'Stats', icon: InsightsRoundedIcon },
+  { to: '/notes', label: 'Notes', icon: StickyNote2RoundedIcon },
 ];
 
 export function BottomTabBar() {

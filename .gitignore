@@ -3,8 +3,11 @@ dist
 dist-ssr
 .env
 .env.local
+.env.*.local
 *.log
+*.tsbuildinfo
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
 .idea
+.vercel

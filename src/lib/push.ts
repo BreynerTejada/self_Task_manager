@@ -1,10 +1,9 @@
+import { env } from './env';
 import { supabase } from './supabase';
 import { urlBase64ToUint8Array } from './utils';
 
-const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
-
 export async function registerPushSubscription(userId: string): Promise<boolean> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !env.vapidPublicKey) {
     return false;
   }
 
@@ -18,7 +17,7 @@ export async function registerPushSubscription(userId: string): Promise<boolean>
   if (!sub) {
     sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
+      applicationServerKey: urlBase64ToUint8Array(env.vapidPublicKey),
     });
   }
 

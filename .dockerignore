@@ -5,11 +5,16 @@ dist-ssr
 .gitignore
 .env
 .env.local
+.env.*.local
 *.log
 .DS_Store
 .vscode
 .idea
+.github
 README.md
 .dockerignore
 Dockerfile
+Dockerfile.dev
 docker-compose.yml
+vercel.json
+*.tsbuildinfo

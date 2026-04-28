@@ -71,6 +71,17 @@ export interface PushSubscription {
   created_at: string;
 }
 
+export interface Note {
+  id: string;
+  user_id: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -87,6 +98,11 @@ export interface Database {
         Row: PushSubscription;
         Insert: Omit<PushSubscription, 'id' | 'created_at'> & { id?: string };
         Update: Partial<PushSubscription>;
+      };
+      notes: {
+        Row: Note;
+        Insert: Omit<Note, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+        Update: Partial<Note>;
       };
     };
   };

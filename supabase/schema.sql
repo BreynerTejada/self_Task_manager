@@ -91,6 +91,19 @@ create table if not exists public.push_subscriptions (
 );
 create index if not exists push_subs_user_id_idx on public.push_subscriptions(user_id);
 
+create table if not exists public.notes (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null default '',
+  body text not null default '',
+  pinned boolean not null default false,
+  color text not null default '#fef3c7',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+create index if not exists notes_user_id_idx on public.notes(user_id);
+create index if not exists notes_pinned_idx on public.notes(user_id, pinned, updated_at desc);
+
 -- Triggers --------------------------------------------------------------------
 create or replace function public.touch_updated_at()
 returns trigger
@@ -110,6 +123,11 @@ for each row execute function public.touch_updated_at();
 drop trigger if exists profiles_touch on public.profiles;
 create trigger profiles_touch
 before update on public.profiles
+for each row execute function public.touch_updated_at();
+
+drop trigger if exists notes_touch on public.notes;
+create trigger notes_touch
+before update on public.notes
 for each row execute function public.touch_updated_at();
 
 -- Auto-stamp completed_at when status flips to/from completed
@@ -162,6 +180,7 @@ alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
 alter table public.task_tags enable row level security;
 alter table public.push_subscriptions enable row level security;
+alter table public.notes enable row level security;
 
 -- profiles: users may select/update their own profile
 drop policy if exists "profiles select own" on public.profiles;
@@ -198,9 +217,15 @@ drop policy if exists "push_subs owner all" on public.push_subscriptions;
 create policy "push_subs owner all" on public.push_subscriptions
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- notes
+drop policy if exists "notes owner all" on public.notes;
+create policy "notes owner all" on public.notes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
 -- Realtime --------------------------------------------------------------------
 alter publication supabase_realtime add table public.tasks;
 alter publication supabase_realtime add table public.categories;
+alter publication supabase_realtime add table public.notes;
 
 -- Cron job to fire reminders edge function ------------------------------------
 -- The function `send-reminders` is deployed separately. Schedule it every minute.

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+# All jobs run inside Docker, mirroring the local workflow.
+# Secrets must be configured at: Settings → Secrets and variables → Actions.
+#   - VITE_SUPABASE_URL
+#   - VITE_SUPABASE_ANON_KEY
+#   - VITE_VAPID_PUBLIC_KEY (optional)
+
+jobs:
+  verify:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.dev
+          load: true
+          tags: tessera-dev:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Typecheck
+        run: docker run --rm tessera-dev:ci npm run typecheck
+
+      - name: Lint
+        run: docker run --rm tessera-dev:ci npm run lint
+        continue-on-error: true
+
+      - name: Production build (with secrets)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          tags: tessera:ci
+          build-args: |
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+            VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
