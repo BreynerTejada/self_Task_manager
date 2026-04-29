@@ -1,6 +1,7 @@
 -- ============================================================================
 -- Tessera — Personal Task Management
--- Schema, RLS, triggers, helper functions
+-- Initial schema, RLS, triggers, helper functions
+-- (mirrors supabase/schema.sql)
 -- ============================================================================
 
 -- Required extensions ---------------------------------------------------------
@@ -243,18 +244,24 @@ create policy "weekly_insights owner all" on public.weekly_insights
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Realtime --------------------------------------------------------------------
-alter publication supabase_realtime add table public.tasks;
-alter publication supabase_realtime add table public.categories;
-alter publication supabase_realtime add table public.notes;
-
--- Cron job to fire reminders edge function ------------------------------------
--- The function `send-reminders` is deployed separately. Schedule it every minute.
--- (Adjust `<project-ref>` and the service-role token via Vault when deploying.)
--- select cron.schedule(
---   'task-reminders',
---   '* * * * *',
---   $$ select net.http_post(
---        url := 'https://<project-ref>.supabase.co/functions/v1/send-reminders',
---        headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.cron_token', true))
---      ); $$
--- );
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'tasks'
+  ) then
+    alter publication supabase_realtime add table public.tasks;
+  end if;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'categories'
+  ) then
+    alter publication supabase_realtime add table public.categories;
+  end if;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'notes'
+  ) then
+    alter publication supabase_realtime add table public.notes;
+  end if;
+end$$;
