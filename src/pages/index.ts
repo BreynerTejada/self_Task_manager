@@ -7,4 +7,5 @@ export { TaskDetailPage } from './TaskDetailPage';
 export { TaskEditPage } from './TaskEditPage';
 export { AnalyticsPage } from './AnalyticsPage';
 export { NotesPage } from './NotesPage';
+export { InsightsPage } from './InsightsPage';
 export { SettingsPage } from './SettingsPage';

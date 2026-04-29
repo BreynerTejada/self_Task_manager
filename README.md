@@ -49,6 +49,14 @@ Open <http://localhost:5173> for dev or <http://localhost:3000> for the prod pre
    supabase functions deploy send-reminders
    supabase secrets set VAPID_PUBLIC_KEY=… VAPID_PRIVATE_KEY=… VAPID_SUBJECT="mailto:you@example.com"
    ```
+5. (Optional) Enable the **Insights** page (AI-powered weekly summary + time-management tips, in Spanish). Uses Google Gemini 2.0 Flash — free tier (1500 req/day, no credit card).
+   - Get a key at <https://aistudio.google.com/apikey>.
+   - Deploy the function and set the secret:
+     ```bash
+     supabase functions deploy summarize-week
+     supabase secrets set GEMINI_API_KEY=…
+     ```
+   - The `weekly_insights` table is part of `schema.sql`, so step 2 already created it.
 
 ## Production — Vercel
 

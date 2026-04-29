@@ -9,6 +9,7 @@ import {
   AuthPage,
   CalendarPage,
   DashboardPage,
+  InsightsPage,
   NotesPage,
   OnboardingPage,
   SettingsPage,
@@ -73,6 +74,7 @@ function AppRoutes() {
           <Route path="tasks/:id/edit" element={<ErrorBoundary><TaskEditPage mode="edit" /></ErrorBoundary>} />
           <Route path="calendar" element={<ErrorBoundary><CalendarPage /></ErrorBoundary>} />
           <Route path="notes" element={<ErrorBoundary><NotesPage /></ErrorBoundary>} />
+          <Route path="insights" element={<ErrorBoundary><InsightsPage /></ErrorBoundary>} />
           <Route path="analytics" element={<ErrorBoundary><AnalyticsPage /></ErrorBoundary>} />
           <Route path="settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
         </Route>

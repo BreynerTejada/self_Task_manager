@@ -1,4 +1,5 @@
 import {
+  endOfWeek,
   format,
   formatDistanceToNowStrict,
   isToday,
@@ -6,6 +7,7 @@ import {
   isYesterday,
   parseISO,
   startOfDay,
+  startOfWeek,
 } from 'date-fns';
 import type { Task, TaskPriority } from '@/types/database';
 
@@ -61,6 +63,14 @@ export function isOverdue(task: Pick<Task, 'due_date' | 'status'>): boolean {
 
 export function todayISO(): string {
   return format(new Date(), 'yyyy-MM-dd');
+}
+
+export function currentWeekRange(): { weekStart: string; weekEnd: string } {
+  const now = new Date();
+  return {
+    weekStart: format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
+    weekEnd: format(endOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
+  };
 }
 
 export function urlBase64ToUint8Array(base64: string): ArrayBuffer {

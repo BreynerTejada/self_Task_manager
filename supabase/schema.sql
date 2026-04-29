@@ -104,6 +104,20 @@ create table if not exists public.notes (
 create index if not exists notes_user_id_idx on public.notes(user_id);
 create index if not exists notes_pinned_idx on public.notes(user_id, pinned, updated_at desc);
 
+create table if not exists public.weekly_insights (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  week_start date not null,
+  week_end date not null,
+  summary text not null,
+  recommendations jsonb not null default '[]',
+  model text not null,
+  task_count integer not null default 0,
+  generated_at timestamptz default now(),
+  unique (user_id, week_start)
+);
+create index if not exists weekly_insights_user_idx on public.weekly_insights(user_id, week_start desc);
+
 -- Triggers --------------------------------------------------------------------
 create or replace function public.touch_updated_at()
 returns trigger
@@ -181,6 +195,7 @@ alter table public.tasks enable row level security;
 alter table public.task_tags enable row level security;
 alter table public.push_subscriptions enable row level security;
 alter table public.notes enable row level security;
+alter table public.weekly_insights enable row level security;
 
 -- profiles: users may select/update their own profile
 drop policy if exists "profiles select own" on public.profiles;
@@ -220,6 +235,11 @@ create policy "push_subs owner all" on public.push_subscriptions
 -- notes
 drop policy if exists "notes owner all" on public.notes;
 create policy "notes owner all" on public.notes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- weekly_insights
+drop policy if exists "weekly_insights owner all" on public.weekly_insights;
+create policy "weekly_insights owner all" on public.weekly_insights
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- Realtime --------------------------------------------------------------------

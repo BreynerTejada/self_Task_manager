@@ -39,5 +39,9 @@ export const queryKeys = {
     list: (search?: string) => ['notes', 'list', search ?? ''] as const,
     detail: (id: string) => ['notes', 'detail', id] as const,
   },
+  weeklyInsight: {
+    all: ['weeklyInsight'] as const,
+    byWeek: (weekStart: string) => ['weeklyInsight', weekStart] as const,
+  },
   profile: () => ['profile'] as const,
 };

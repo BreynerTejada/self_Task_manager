@@ -82,6 +82,18 @@ export interface Note {
   updated_at: string;
 }
 
+export interface WeeklyInsight {
+  id: string;
+  user_id: string;
+  week_start: string;
+  week_end: string;
+  summary: string;
+  recommendations: string[];
+  model: string;
+  task_count: number;
+  generated_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -103,6 +115,11 @@ export interface Database {
         Row: Note;
         Insert: Omit<Note, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<Note>;
+      };
+      weekly_insights: {
+        Row: WeeklyInsight;
+        Insert: Omit<WeeklyInsight, 'id' | 'generated_at'> & { id?: string };
+        Update: Partial<WeeklyInsight>;
       };
     };
   };

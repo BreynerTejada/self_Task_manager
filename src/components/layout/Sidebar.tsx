@@ -4,6 +4,7 @@ import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChecklistRoundedIcon from '@mui/icons-material/ChecklistRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import StickyNote2RoundedIcon from '@mui/icons-material/StickyNote2Rounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { to: '/tasks', label: 'Tasks', icon: ChecklistRoundedIcon },
   { to: '/calendar', label: 'Calendar', icon: CalendarMonthRoundedIcon },
   { to: '/notes', label: 'Notes', icon: StickyNote2RoundedIcon },
+  { to: '/insights', label: 'Insights', icon: AutoAwesomeRoundedIcon },
   { to: '/analytics', label: 'Analytics', icon: InsightsRoundedIcon },
   { to: '/settings', label: 'Settings', icon: SettingsRoundedIcon },
 ];
