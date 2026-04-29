@@ -73,12 +73,14 @@ create index if not exists tasks_user_id_idx on public.tasks(user_id);
 create index if not exists tasks_due_date_idx on public.tasks(user_id, due_date);
 create index if not exists tasks_status_idx on public.tasks(user_id, status);
 create index if not exists tasks_reminder_at_idx on public.tasks(reminder_at) where reminder_at is not null;
+create index if not exists tasks_category_id_idx on public.tasks(category_id);
 
 create table if not exists public.task_tags (
   task_id uuid not null references public.tasks(id) on delete cascade,
   tag_id uuid not null references public.tags(id) on delete cascade,
   primary key (task_id, tag_id)
 );
+create index if not exists task_tags_tag_id_idx on public.task_tags(tag_id);
 
 create table if not exists public.push_subscriptions (
   id uuid primary key default gen_random_uuid(),
@@ -122,6 +124,7 @@ create index if not exists weekly_insights_user_idx on public.weekly_insights(us
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   new.updated_at = now();
@@ -148,6 +151,7 @@ for each row execute function public.touch_updated_at();
 create or replace function public.stamp_completed_at()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   if new.status = 'completed' and (old.status is distinct from 'completed') then
@@ -187,6 +191,12 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
 
+-- handle_new_user is only meant to run from the trigger above; do not allow
+-- API roles to call it directly via PostgREST RPC.
+revoke execute on function public.handle_new_user() from public;
+revoke execute on function public.handle_new_user() from anon;
+revoke execute on function public.handle_new_user() from authenticated;
+
 -- Row Level Security ----------------------------------------------------------
 alter table public.profiles enable row level security;
 alter table public.categories enable row level security;
@@ -198,49 +208,51 @@ alter table public.notes enable row level security;
 alter table public.weekly_insights enable row level security;
 
 -- profiles: users may select/update their own profile
+-- Note: auth.uid() is wrapped in (select ...) so RLS evaluates it once per
+-- query rather than once per row (auth_rls_initplan optimization).
 drop policy if exists "profiles select own" on public.profiles;
-create policy "profiles select own" on public.profiles for select using (auth.uid() = id);
+create policy "profiles select own" on public.profiles for select using ((select auth.uid()) = id);
 drop policy if exists "profiles update own" on public.profiles;
-create policy "profiles update own" on public.profiles for update using (auth.uid() = id);
+create policy "profiles update own" on public.profiles for update using ((select auth.uid()) = id);
 drop policy if exists "profiles insert own" on public.profiles;
-create policy "profiles insert own" on public.profiles for insert with check (auth.uid() = id);
+create policy "profiles insert own" on public.profiles for insert with check ((select auth.uid()) = id);
 
 -- categories
 drop policy if exists "categories owner all" on public.categories;
 create policy "categories owner all" on public.categories
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- tags
 drop policy if exists "tags owner all" on public.tags;
 create policy "tags owner all" on public.tags
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- tasks
 drop policy if exists "tasks owner all" on public.tasks;
 create policy "tasks owner all" on public.tasks
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- task_tags: rely on parent task ownership
 drop policy if exists "task_tags via task" on public.task_tags;
 create policy "task_tags via task" on public.task_tags
   for all
-  using (exists (select 1 from public.tasks t where t.id = task_id and t.user_id = auth.uid()))
-  with check (exists (select 1 from public.tasks t where t.id = task_id and t.user_id = auth.uid()));
+  using (exists (select 1 from public.tasks t where t.id = task_id and t.user_id = (select auth.uid())))
+  with check (exists (select 1 from public.tasks t where t.id = task_id and t.user_id = (select auth.uid())));
 
 -- push_subscriptions
 drop policy if exists "push_subs owner all" on public.push_subscriptions;
 create policy "push_subs owner all" on public.push_subscriptions
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- notes
 drop policy if exists "notes owner all" on public.notes;
 create policy "notes owner all" on public.notes
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- weekly_insights
 drop policy if exists "weekly_insights owner all" on public.weekly_insights;
 create policy "weekly_insights owner all" on public.weekly_insights
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- Realtime --------------------------------------------------------------------
 alter publication supabase_realtime add table public.tasks;
