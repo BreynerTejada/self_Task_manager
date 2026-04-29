@@ -26,6 +26,7 @@ export const queryKeys = {
   },
   categories: {
     all: ['categories'] as const,
+    stats: () => ['categories', 'stats'] as const,
   },
   tags: {
     all: ['tags'] as const,

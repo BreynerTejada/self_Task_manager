@@ -2,6 +2,7 @@ export { AuthPage } from './AuthPage';
 export { OnboardingPage } from './OnboardingPage';
 export { DashboardPage } from './DashboardPage';
 export { TasksPage } from './TasksPage';
+export { CategoriesPage } from './CategoriesPage';
 export { CalendarPage } from './CalendarPage';
 export { TaskDetailPage } from './TaskDetailPage';
 export { TaskEditPage } from './TaskEditPage';

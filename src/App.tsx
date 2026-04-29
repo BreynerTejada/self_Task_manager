@@ -8,6 +8,7 @@ import {
   AnalyticsPage,
   AuthPage,
   CalendarPage,
+  CategoriesPage,
   DashboardPage,
   InsightsPage,
   NotesPage,
@@ -72,6 +73,7 @@ function AppRoutes() {
           <Route path="tasks/new" element={<ErrorBoundary><TaskEditPage mode="create" /></ErrorBoundary>} />
           <Route path="tasks/:id" element={<ErrorBoundary><TaskDetailPage /></ErrorBoundary>} />
           <Route path="tasks/:id/edit" element={<ErrorBoundary><TaskEditPage mode="edit" /></ErrorBoundary>} />
+          <Route path="categories" element={<ErrorBoundary><CategoriesPage /></ErrorBoundary>} />
           <Route path="calendar" element={<ErrorBoundary><CalendarPage /></ErrorBoundary>} />
           <Route path="notes" element={<ErrorBoundary><NotesPage /></ErrorBoundary>} />
           <Route path="insights" element={<ErrorBoundary><InsightsPage /></ErrorBoundary>} />

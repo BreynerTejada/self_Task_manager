@@ -66,10 +66,24 @@ export const sectionLabel = (collapsed: boolean): SxProps<Theme> => ({
   letterSpacing: '0.14em',
   textTransform: 'uppercase',
   color: 'text.disabled',
+});
+
+export const sectionHeaderRow: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
   paddingInline: 1,
+  paddingRight: 0.5,
   marginTop: 2,
   marginBottom: 0.5,
-});
+};
+
+export const sectionAction: SxProps<Theme> = {
+  width: 22,
+  height: 22,
+  color: 'text.disabled',
+  '&:hover': { color: 'primary.main', backgroundColor: 'action.hover' },
+};
 
 export const navList: SxProps<Theme> = {
   display: 'flex',

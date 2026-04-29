@@ -1,13 +1,15 @@
 import { Avatar, Box, Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChecklistRoundedIcon from '@mui/icons-material/ChecklistRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import StickyNote2RoundedIcon from '@mui/icons-material/StickyNote2Rounded';
+import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { useUIStore } from '@/stores/uiStore';
@@ -18,6 +20,7 @@ import * as styles from './Sidebar.styles';
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: HomeRoundedIcon, end: true },
   { to: '/tasks', label: 'Tasks', icon: ChecklistRoundedIcon },
+  { to: '/categories', label: 'Categories', icon: CategoryRoundedIcon },
   { to: '/calendar', label: 'Calendar', icon: CalendarMonthRoundedIcon },
   { to: '/notes', label: 'Notes', icon: StickyNote2RoundedIcon },
   { to: '/insights', label: 'Insights', icon: AutoAwesomeRoundedIcon },
@@ -29,10 +32,18 @@ export function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggle = useUIStore((s) => s.toggleSidebar);
   const setFilters = useUIStore((s) => s.setFilters);
+  const resetFilters = useUIStore((s) => s.resetFilters);
   const openQuickAdd = useUIStore((s) => s.openQuickAdd);
   const { user } = useAuth();
   const { data: categories = [] } = useCategories();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (categoryId: string) => {
+    resetFilters();
+    setFilters({ categoryIds: [categoryId] });
+    if (location.pathname !== '/tasks') navigate('/tasks');
+  };
 
   const initials =
     (user?.user_metadata?.full_name as string | undefined)?.split(' ').map((s) => s[0]).slice(0, 2).join('') ||
@@ -77,15 +88,28 @@ export function Sidebar() {
 
       {!collapsed && categories.length > 0 && (
         <>
-          <Typography sx={styles.sectionLabel(collapsed)}>Categories</Typography>
+          <Box sx={styles.sectionHeaderRow}>
+            <Typography sx={styles.sectionLabel(collapsed)}>Categories</Typography>
+            <Tooltip title="Manage categories">
+              <IconButton
+                size="small"
+                onClick={() => navigate('/categories')}
+                sx={styles.sectionAction}
+              >
+                <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Box sx={styles.navList}>
             {categories.slice(0, 6).map((cat) => {
-              const active = location.pathname === '/tasks' && useUIStore.getState().filters.categoryIds.includes(cat.id);
+              const active =
+                location.pathname === '/tasks' &&
+                useUIStore.getState().filters.categoryIds.includes(cat.id);
               return (
                 <Box
                   key={cat.id}
                   component="button"
-                  onClick={() => setFilters({ categoryIds: [cat.id] })}
+                  onClick={() => handleCategoryClick(cat.id)}
                   sx={{
                     ...styles.navItem(active, false),
                     cursor: 'pointer',
@@ -96,10 +120,31 @@ export function Sidebar() {
                   }}
                 >
                   <Box sx={styles.categoryDot(cat.color)} />
-                  <span>{cat.icon} {cat.name}</span>
+                  <span>
+                    {cat.icon} {cat.name}
+                  </span>
                 </Box>
               );
             })}
+            {categories.length > 6 && (
+              <Box
+                component="button"
+                onClick={() => navigate('/categories')}
+                sx={{
+                  ...styles.navItem(false, false),
+                  cursor: 'pointer',
+                  background: 'transparent',
+                  border: 'none',
+                  width: '100%',
+                  textAlign: 'left',
+                  color: 'primary.main',
+                  fontSize: 13,
+                }}
+              >
+                <Box sx={styles.categoryDot('#6366f1')} />
+                <span>See all {categories.length}…</span>
+              </Box>
+            )}
           </Box>
         </>
       )}
