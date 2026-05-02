@@ -9,8 +9,10 @@ on:
 # All jobs run inside Docker, mirroring the local workflow.
 # Secrets must be configured at: Settings → Secrets and variables → Actions.
 #   - VITE_SUPABASE_URL
-#   - VITE_SUPABASE_ANON_KEY
-#   - VITE_VAPID_PUBLIC_KEY (optional)
+#   - VITE_SUPABASE_ANON_KEY            (legacy JWT key)            optional
+#   - VITE_SUPABASE_PUBLISHABLE_KEY     (modern sb_publishable_*)   optional
+#   (set at least one of the two keys; the app accepts either)
+#   - VITE_VAPID_PUBLIC_KEY                                          optional
 
 jobs:
   verify:
@@ -52,6 +54,7 @@ jobs:
           build-args: |
             VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
             VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+            VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
             VITE_VAPID_PUBLIC_KEY=${{ secrets.VITE_VAPID_PUBLIC_KEY }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
