@@ -1,6 +1,6 @@
 // Deno edge function: summarize-week
 // Generates a Spanish weekly summary + time-management recommendations
-// for the calling user's tasks, using Google Gemini 2.0 Flash, then upserts
+// for the calling user's tasks, using Google Gemini 2.5 Flash, then upserts
 // the result into public.weekly_insights.
 //
 // Required env vars (configure with `supabase secrets set ...`):
@@ -11,7 +11,7 @@
 // @ts-nocheck — Deno runtime types differ from app TS config.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-2.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 const CORS_HEADERS = {
